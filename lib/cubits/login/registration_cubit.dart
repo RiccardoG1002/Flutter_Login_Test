@@ -20,14 +20,20 @@ class RegistrationCubit extends Cubit<RegistrationState> {
     emit(state.copyWith(password: value, status: RegistrationStatus.initial));
   }
 
-  Future<String?> registerUser(User user) async {
+  Future<void> registerUser() async {
     String? token;
-    if (state.status == RegistrationStatus.submitting) return null;
+    if (state.status == RegistrationStatus.submitting) return;
     emit(state.copyWith(status: RegistrationStatus.submitting));
     try {
-      token = await userRepository.registerUser(user);
-    } catch (_) {}
+      token = await userRepository.registerUser(User(
+          username: state.username,
+          email: state.email,
+          password: state.password));
+    } on Exception catch (e) {
+      print(e.toString());
+    }
     emit(state.copyWith(status: RegistrationStatus.success));
-    return token;
+    print(token);
+    return;
   }
 }
